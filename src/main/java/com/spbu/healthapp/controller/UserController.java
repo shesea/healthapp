@@ -1,11 +1,19 @@
 package com.spbu.healthapp.controller;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.spbu.healthapp.dto.UserRequest;
 import com.spbu.healthapp.entity.User;
+import com.spbu.healthapp.exception.UserExistsException;
+import com.spbu.healthapp.exception.UserNotFoundException;
 import com.spbu.healthapp.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 public class UserController {
@@ -13,38 +21,38 @@ public class UserController {
     private UserService service;
 
     @PostMapping("/user/add")
-    public User addUser(@RequestBody User user) {
-        return service.saveUser(user);
+    public ResponseEntity<User> addUser(@RequestBody @Valid UserRequest userRequest) throws UserExistsException {
+        return new ResponseEntity<>(service.saveUser(userRequest), HttpStatus.CREATED);
     }
 
-    @PostMapping("/user/addList")
-    public List<User> addUsers(@RequestBody List<User> users) {
-        return service.saveUsers(users);
+    @PostMapping("/user/signIn")
+    public ResponseEntity<User> signIn(@RequestBody UserRequest userRequest) throws Exception {
+        return new ResponseEntity<>(service.login(userRequest), HttpStatus.CREATED);
     }
 
     @GetMapping("/user/getList")
-    public List<User> findAllUsers() {
-        return service.getUsers();
+    public ResponseEntity<List<User>> findAllUsers() {
+        return ResponseEntity.ok(service.getUsers());
     }
 
     @GetMapping("/user/getById/{id}")
-    public User findUserById(@PathVariable int id) {
-        return service.getUserById(id);
+    public ResponseEntity<User> findUserById(@PathVariable int id) throws UserNotFoundException {
+        return ResponseEntity.ok(service.getUserById(id));
     }
 
     @GetMapping("/user/getByEmail/{email}")
-    public User findUserByEmail(@PathVariable String email) {
-        return service.getUserByEmail(email);
+    public ResponseEntity<User> findUserByEmail(@PathVariable String email) {
+        return ResponseEntity.ok(service.getUserByEmail(email));
     }
 
     @PutMapping("/user/update")
-    public User updateUser(@RequestBody User user) {
-        return service.updateUser(user);
+    public ResponseEntity<User> updateUser(@RequestBody ObjectNode objectNode) throws UserNotFoundException {
+        return ResponseEntity.ok(service.updateUser(objectNode.get("id").asInt(), objectNode.get("name").asText()));
     }
 
     @DeleteMapping("user/delete/{id}")
-    public String deleteUser(@PathVariable int id) {
-        return service.deleteUser(id);
+    public ResponseEntity<String> deleteUser(@PathVariable int id) {
+        return ResponseEntity.ok(service.deleteUser(id));
     }
 
 }

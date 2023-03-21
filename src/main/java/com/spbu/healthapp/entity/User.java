@@ -1,5 +1,6 @@
 package com.spbu.healthapp.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -7,9 +8,11 @@ import lombok.NoArgsConstructor;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
 @Entity
 public class User {
@@ -17,34 +20,15 @@ public class User {
     @Id
     @GeneratedValue
     private int id;
-    private String firstName;
-    private String lastName;
-    private String patronymic;
     private String email;
+    private String name;
+    @JsonIgnore
     private String password;
 
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public String getPatronymic() {
-        return patronymic;
-    }
-
-    public void setPatronymic(String patronymic) {
-        this.patronymic = patronymic;
+    public User(String email, String name, String password) {
+        this.email = email;
+        this.name = name;
+        this.password = password;
     }
 
     public String getEmail() {
@@ -55,6 +39,14 @@ public class User {
         this.email = email;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public String getPassword() {
         return password;
     }
@@ -62,4 +54,12 @@ public class User {
     public void setPassword(String password) {
         this.password = password;
     }
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "user")
+    private Set<MedicineUser> medicineUsers = new HashSet<>();
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "user")
+    private Set<ParameterUser> parameterUsers = new HashSet<>();
 }
